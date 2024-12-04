@@ -1,17 +1,17 @@
 <template>
   <b-col cols="4">
     <b-card
-      :title="animal.name"
-      :img-src="animal.links[0].url"
-      img-alt="Image"
-      img-top
-      tag="article"
-      style="max-width: 20rem;"
-      class="mb-5"
+        :title="animal.name"
+        :img-src="getAnimalImage()"
+        img-alt="Image"
+        img-top
+        tag="article"
+        style="max-width: 20rem;"
+        class="mb-5"
     >
       <b-card-text>
-        <kbd>{{ animal.group }}</kbd
-        >&nbsp;
+        <kbd>{{ animal.group }}</kbd>
+        &nbsp;
         <kbd style="background-color: red">nível {{ animal.level }}</kbd>
       </b-card-text>
       <b-card-text>{{ animal.description }}</b-card-text>
@@ -23,20 +23,18 @@
       </b-card-text>
 
       <router-link
-        :to="{ name: 'animal', params: { animalId: animal._id } }"
-        tag="b-button"
-        variant="outline-success"
-        align="center"
-        class="mr-2"
+          :to="{ name: 'animal', params: { animalId: animal._id } }"
+          tag="b-button"
+          variant="outline-success"
+          align="center"
+          class="mr-2"
       >
         <i class="fas fa-search"></i> ver animal
       </router-link>
       <b-button
-        variant="info"
-        :href="
-          'https://www.facebook.com/sharer/sharer.php?u=' + animal.links[0].url
-        "
-        target="_blank"
+          variant="info"
+          :href="getFacebookShareUrl()"
+          target="_blank"
       >
         <i class="fab fa-facebook"></i> Partilhar
       </b-button>
@@ -51,43 +49,67 @@ import { mapGetters } from "vuex";
 export default {
   name: "Animal",
   props: ["animal"],
-  data: function() {
+  data: function () {
     return {
-      color: ""
+      color: "",
     };
   },
   methods: {
     ...mapGetters("auth", ["getProfile"]),
+
+    getAnimalImage() {
+      // Retorna a URL da imagem ou um valor padrão
+      return this.animal.links && this.animal.links[0]
+          ? this.animal.links[0].url
+          : "/default-image.jpg";
+    },
+
+    getFacebookShareUrl() {
+      // Retorna o link de compartilhamento ou um link padrão
+      return this.animal.links && this.animal.links[0]
+          ? `https://www.facebook.com/sharer/sharer.php?u=${this.animal.links[0].url}`
+          : "https://www.facebook.com";
+    },
+
     evaluate() {
       if (!this.animal.evaluation.includes(this.getProfile()._id)) {
         this.animal.evaluation.push(this.getProfile()._id);
         this.color = "red";
       } else {
         this.animal.evaluation = this.animal.evaluation.filter(
-          user => user !== this.getProfile()._id
+            (user) => user !== this.getProfile()._id
         );
         this.color = "black";
       }
       this.$store.dispatch(`animal/${EDIT_ANIMAL}`, this.animal).then(
-        () => {
-          this.$alert(
-            `Obrigado por gostares do ${this.animal.name}!`,
-            "Gosto",
-            "success"
-          );
-        },
-        err => {
-          this.$alert(`${err.message}`, "Erro", "error");
-        }
+          () => {
+            this.$alert(
+                `Obrigado por gostares do ${this.animal.name}!`,
+                "Gosto",
+                "success"
+            );
+          },
+          (err) => {
+            this.$alert(`${err.message}`, "Erro", "error");
+          }
       );
-    }
+    },
   },
   created() {
-    if (!this.animal.evaluation.includes(this.getProfile()._id)) {
-      this.color = "black";
-    } else {
-      this.color = "red";
-    }
-  }
+    // Simulação de chamada mockada para "/api/animals"
+    fetch("/api/animals")
+        .then((response) => response.json())
+        .then((data) => {
+          console.log("Dados de animais mockados:", data); // Exibir no console
+          if (!this.animal.evaluation.includes(this.getProfile()._id)) {
+            this.color = "black";
+          } else {
+            this.color = "red";
+          }
+        })
+        .catch((err) => {
+          console.error("Erro ao buscar animais mockados:", err);
+        });
+  },
 };
 </script>

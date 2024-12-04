@@ -1,16 +1,16 @@
 <template>
-  <b-container fluid>
-    <NavBar></NavBar>
-    <router-view />
-  </b-container>
+  <div>
+    <h1>Home</h1>
+    <TestMock />
+  </div>
 </template>
+
 <script>
-import NavBar from "@/components/NavBar.vue";
+import TestMock from "@/components/TestMock.vue";
 
 export default {
-  name: "app",
   components: {
-    NavBar
-  }
+    TestMock,
+  },
 };
 </script>
